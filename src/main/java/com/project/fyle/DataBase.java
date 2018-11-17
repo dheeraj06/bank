@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -92,6 +93,18 @@ public JSONArray getBank(String bname,String bcity)
 	catch(Exception e)
 	{
 		System.out.println(e.toString());
+	}
+	finally
+	{
+		if(conn!=null)
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	return ja;
 }
