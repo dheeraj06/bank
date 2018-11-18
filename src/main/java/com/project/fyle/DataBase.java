@@ -25,6 +25,7 @@ public DataBase()
 		System.out.println(e.toString());
 	}
 }
+@SuppressWarnings("unchecked")
 public JSONArray getIfsc(String ifsc)
 {
 	JSONArray ja=new JSONArray();
@@ -60,6 +61,7 @@ public JSONArray getIfsc(String ifsc)
 	
 	return ja;
 }
+@SuppressWarnings("unchecked")
 public JSONArray getBank(String bname,String bcity)
 {
 	JSONArray ja=new JSONArray();
