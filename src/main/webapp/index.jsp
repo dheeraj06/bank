@@ -2,7 +2,7 @@
 <body>
 
 <form action="webapi/myresource" method="get">
-    <h2><b>SEARCH BANK USIN IFSC</b></h2>
+    <h2><b>SEARCH BANK USING IFSC</b></h2>
     ENTER IFSC CODE<input type="text" name=ifsc>
     <br>
     <input type="submit" value="SEARCH">
