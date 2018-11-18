@@ -1,1 +1,0 @@
-web: java target/classes:target/dependency/* fyle
