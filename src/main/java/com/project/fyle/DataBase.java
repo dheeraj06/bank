@@ -1,5 +1,7 @@
 package com.project.fyle;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,40 +11,39 @@ import java.sql.SQLException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class DataBase {
-private static final String username="root";
-private static final String password="123456";
-private static final String connect="jdbc:mysql://localhost:3306/bank";
-Connection conn=null;
-public DataBase()
+public class DataBase
 {
-	try {
-	Class.forName("com.mysql.jdbc.Driver");
-	conn=DriverManager.getConnection(connect,username,password);
+	
+	private static Connection getConnection() throws URISyntaxException, SQLException {
+        URI dbUri = new URI(System.getenv("DATABASE_URL"));
+
+        String username = dbUri.getUserInfo().split(":")[0];
+        String password = dbUri.getUserInfo().split(":")[1];
+        String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+        System.out.println(dbUrl);
+        return DriverManager.getConnection(dbUrl,username,password);
+
 	}
-	catch(Exception e)
-	{
-		System.out.println(e.toString());
-	}
-}
 @SuppressWarnings("unchecked")
 public JSONArray getIfsc(String ifsc)
 {
 	JSONArray ja=new JSONArray();
 	try {
-	PreparedStatement pst=conn.prepareStatement("SELECT * FROM bank_details WHERE bank_ifsc=?");
+		
+	Connection conn=getConnection();
+	PreparedStatement pst=conn.prepareStatement("select * from bank_branches where ifsc=? ");
 	pst.setString(1,ifsc);
 	ResultSet rs=pst.executeQuery();
 	while(rs.next()) {
 		JSONObject json=new JSONObject();
-		int bank_id=rs.getInt(1);
+		String bank_id=rs.getString("bank_id");
 		String bank_name=rs.getString("bank_name");
-		String bank_ifsc=rs.getString("bank_ifsc");
-		String bank_branch=rs.getString("bank_branch");
-		String bank_address=rs.getString("bank_address");
-		String bank_city=rs.getString("bank_city");
-		String bank_district=rs.getString("bank_district");
-		String bank_state=rs.getString("bank_state");
+		String bank_ifsc=rs.getString("ifsc");
+		String bank_branch=rs.getString("branch");
+		String bank_address=rs.getString("address");
+		String bank_city=rs.getString("city");
+		String bank_district=rs.getString("district");
+		String bank_state=rs.getString("state");
 		json.put("bankId",bank_id);
 		json.put("bankName",bank_name);
 		json.put("bankIfsc",bank_ifsc);
@@ -55,8 +56,8 @@ public JSONArray getIfsc(String ifsc)
 	}
 	}
 	catch(Exception e)
-	{
-		System.out.println(e.toString());
+	{	e.printStackTrace();
+		System.out.println(e.toString() + "KKKKK");
 	}
 	
 	return ja;
@@ -64,23 +65,25 @@ public JSONArray getIfsc(String ifsc)
 @SuppressWarnings("unchecked")
 public JSONArray getBank(String bname,String bcity)
 {
+	Connection conn;
+	
 	JSONArray ja=new JSONArray();
-	try {
-	PreparedStatement pst=conn.prepareStatement("SELECT * FROM bank_details WHERE bank_name=? AND bank_city=?");
+	try {conn = getConnection();
+	PreparedStatement pst=conn.prepareStatement(" select * from bank_branches where bank_name=? and city=?;");
 	pst.setString(1,bname);
 	pst.setString(2,bcity);
 	ResultSet rs=pst.executeQuery();
 	while(rs.next())
 	{
 		JSONObject json=new JSONObject();
-		int bank_id=rs.getInt(1);
-		String bank_name=rs.getString("bank_name");
-		String bank_ifsc=rs.getString("bank_ifsc");
-		String bank_branch=rs.getString("bank_branch");
-		String bank_address=rs.getString("bank_address");
-		String bank_city=rs.getString("bank_city");
-		String bank_district=rs.getString("bank_district");
-		String bank_state=rs.getString("bank_state");
+		String bank_ifsc=rs.getString(1);
+		int bank_id=rs.getInt(2);
+		String bank_branch=rs.getString(3);
+		String bank_address=rs.getString(4);
+		String bank_city=rs.getString(5);
+		String bank_district=rs.getString(6);
+		String bank_state=rs.getString(7);
+		String bank_name=rs.getString(8);
 		json.put("bankId",bank_id);
 		json.put("bankName",bank_name);
 		json.put("bankIfsc",bank_ifsc);
@@ -96,18 +99,9 @@ public JSONArray getBank(String bname,String bcity)
 	{
 		System.out.println(e.toString());
 	}
-	finally
-	{
-		if(conn!=null)
-		{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+	
 		
-	}
+	
 	return ja;
 }
 
